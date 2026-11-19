@@ -19,7 +19,7 @@ Open the repository with the editor of your choice, or skip installation altoget
 
 ## Deployment
 
-<https://anderjef.github.io/simplex-noise-flow-field/> is continuously deployed to via a GitHub Action workflow.
+`npm run deploy` to continuously deliver to <https://anderjef.github.io/simplex-noise-flow-field/> (GitHub Pages).
 
 ## Acknowledgements
 
