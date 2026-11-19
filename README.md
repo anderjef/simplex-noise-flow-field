@@ -7,6 +7,8 @@ Start date: 2026-11-03
 
 ![Sample screenshot](sample-screenshot.png)
 
+![Sample screen recording](sample-screen-recording.gif)
+
 ## Installation
 
 Open the repository with the editor of your choice, or skip installation altogether by visiting [the deployed version](https://anderjef.github.io/simplex-noise-flow-field/).
