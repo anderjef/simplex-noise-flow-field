@@ -26,9 +26,9 @@ function App() {
   const simplexNoiseY = createNoise3D(mulberry32(SEED_PART_2));
   const simplexNoiseTemperature = createNoise3D(mulberry32(SEED_PART_3));
   // X and Y flow components' x and y delta determined by experimentation.
-  const delta: number = 0.005;
+  const delta = 0.005;
   // X and Y flow components' time delta determined by experimentation.
-  const deltaT: number = delta / 2;
+  const deltaT = delta / 2;
   // Fade rate determined by experimentation.
   const fadeRate = 2.5;
   const frameRatePeriod = 10;

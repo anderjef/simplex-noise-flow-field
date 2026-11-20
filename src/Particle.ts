@@ -1,7 +1,7 @@
 class Particle {
-    private temperature: number = 0;
-    private maxVelocity: number = 0;
-    private flowStrength: number = 0;
+    private temperature = 0;
+    private maxVelocity = 0;
+    private flowStrength = 0;
     public position: { x: number; y: number; };
     private velocity: { x: number; y: number; };
     private previousPosition: { x: number; y: number; };
