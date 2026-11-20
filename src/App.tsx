@@ -117,7 +117,7 @@ function App() {
             }
           }
           context.putImageData(imgData, 0, 0);
-          if (frameCountRef.current > 50) {
+          if (frameCountRef.current > Math.ceil(255 / fadeRate)) {
             setMinAlpha((previousMinAlpha) => Math.min(previousMinAlpha, alphaSum));
           }
 
