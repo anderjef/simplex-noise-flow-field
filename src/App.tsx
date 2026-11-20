@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import './App.css'
 import { createNoise3D } from 'simplex-noise';
 import Particle from './Particle.ts';
+import mulberry32 from './mulberry32.tsx';
 
 function App() {
   // Number of particles determined by experimentation.
@@ -14,11 +15,16 @@ function App() {
   const requestRef = useRef<number>(null);
   const mouseCoords = useRef({ x: 0, y: 0 });
   const dimensions = useRef({ width: 0, height: 0 });
+  // The cubic root is taken to shorten each of the three seed components' length to roughly a third of the length of the (base-ten) representation of Number.MAX_SAFE_INTEGER, to keep the total length roughly equal.
+  const SEED_PART_MAX = Math.cbrt(Number.MAX_SAFE_INTEGER);
+  const [SEED_PART_1] = useState(() => Math.round(Math.random() * SEED_PART_MAX));
+  const [SEED_PART_2] = useState(() => Math.round(Math.random() * SEED_PART_MAX));
+  const [SEED_PART_3] = useState(() => Math.round(Math.random() * SEED_PART_MAX));
 
   // One simplex noise per axis to circumvent limitations mapping the bounded line of noise values onto a circle of angles.
-  const simplexNoiseX = createNoise3D();
-  const simplexNoiseY = createNoise3D();
-  const simplexNoiseTemperature = createNoise3D();
+  const simplexNoiseX = createNoise3D(mulberry32(SEED_PART_1));
+  const simplexNoiseY = createNoise3D(mulberry32(SEED_PART_2));
+  const simplexNoiseTemperature = createNoise3D(mulberry32(SEED_PART_3));
   // X and Y flow components' x and y delta determined by experimentation.
   const delta: number = 0.005;
   // X and Y flow components' time delta determined by experimentation.
@@ -156,6 +162,7 @@ function App() {
       <p style={{ fontSize: "1rem" }}>Frame: {frameCountRef.current}</p>
       <p style={{ fontSize: "1rem" }}>Particles: {NUM_PARTICLES}</p>
       <p style={{ fontSize: "1rem" }}>Min alpha: {minAlpha == Number.MAX_VALUE ? "-" : Math.floor(minAlpha / ((canvasRef.current?.width ?? 0) * (canvasRef.current?.height ?? 0)))} / pixel</p>
+      <p style={{ fontSize: "1rem" }}>Seed: {SEED_PART_1}{SEED_PART_2}{SEED_PART_3}</p>
     </>
   )
 }
