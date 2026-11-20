@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import './App.css'
 import { createNoise3D } from 'simplex-noise';
 import Particle from './Particle.ts';
-import mulberry32 from './mulberry32.tsx';
+import mulberry32 from './mulberry32.ts';
 
 function App() {
   // Number of particles determined by experimentation.
