@@ -10,7 +10,7 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameCountRef = useRef(0);
   const [fps, setFps] = useState(0);
-  const [minAlpha, setMinAlpha] = useState(Number.MAX_VALUE);
+  const [minAlpha, setMinAlpha] = useState(Number.MAX_SAFE_INTEGER);
   const particlesRef = useRef<Particle[]>([]);
   const requestRef = useRef<number>(null);
   const mouseCoords = useRef({ x: 0, y: 0 });
@@ -161,7 +161,7 @@ function App() {
       <p style={{ fontSize: "2rem" }}>{Math.floor(fps)} fps</p>
       <p style={{ fontSize: "1rem" }}>Frame: {frameCountRef.current}</p>
       <p style={{ fontSize: "1rem" }}>Particles: {NUM_PARTICLES}</p>
-      <p style={{ fontSize: "1rem" }}>Min alpha: {minAlpha == Number.MAX_VALUE ? "-" : Math.floor(minAlpha / ((canvasRef.current?.width ?? 0) * (canvasRef.current?.height ?? 0)))} / pixel</p>
+      <p style={{ fontSize: "1rem" }}>Min alpha: {minAlpha == Number.MAX_SAFE_INTEGER ? "-" : Math.floor(minAlpha / ((canvasRef.current?.width ?? 0) * (canvasRef.current?.height ?? 0)))} / pixel</p>
       <p style={{ fontSize: "1rem" }}>Seed: {SEED_PART_1}{SEED_PART_2}{SEED_PART_3}</p>
     </>
   )
