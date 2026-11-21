@@ -59,10 +59,12 @@ class Particle {
             this.position.y -= height;
             corrected = true;
         }
-        context.beginPath();
-        context.moveTo(this.position.x - this.velocity.x, this.position.y - this.velocity.y);
-        context.lineTo(this.position.x, this.position.y);
-        context.stroke();
+        if (corrected) {
+            context.beginPath();
+            context.moveTo(this.position.x - this.velocity.x, this.position.y - this.velocity.y);
+            context.lineTo(this.position.x, this.position.y);
+            context.stroke();
+        }
     }
 }
 
