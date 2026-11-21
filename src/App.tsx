@@ -92,7 +92,9 @@ function App() {
           for (let i = 0; i < particlesRef.current.length; i++) {
             const particle = particlesRef.current[i];
             const angleX = Math.PI / 2 * (simplexNoiseX(particle.position.x * delta, particle.position.y * delta, frameCountRef.current * deltaT) + 1);
-            const angleY = Math.PI / 2 * simplexNoiseY(particle.position.x * delta, particle.position.y * delta, frameCountRef.current * deltaT);
+            // Y coordinate (and not additionally the X coordinate) in simplexNoiseY is offset slightly from simplexNoiseX to avoid shared zero points (points at startup that consistently push, pull, or swirl particles initially across runs) between the independent simplex fields.
+            // Any of the simplexNoiseX.x, simplexNoiseY.x, simplexNoiseY.x, or simplexNoiseY.y coordinates could have been offset, but simplexNoiseY.y was thought to be the least impacting on readability.
+            const angleY = Math.PI / 2 * simplexNoiseY(particle.position.x * delta, particle.position.y * delta + 1, frameCountRef.current * deltaT);
             const flowX = Math.cos(angleX);
             const flowY = Math.sin(angleY);
             // Temperature range of particles determined by experimentation.
