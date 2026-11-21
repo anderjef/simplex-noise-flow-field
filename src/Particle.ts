@@ -9,16 +9,16 @@ class Particle {
     private previousPosition: { x: number; y: number; };
     private color: string;
 
-    constructor(width: number, height: number, temperature: number, flowX: number, flowY: number, color: string) {
-        this.position = { x: seededRandom() * width, y: seededRandom() * height, };
+    constructor(position: { x: number, y: number, }, color: string, width: number, height: number, flowX: number, flowY: number, context: CanvasRenderingContext2D) {
+        this.position = position;
         this.velocity = { x: 0, y: 0, };
         // Setting the previous position here is redundant (also set in update function) to avoid lint errors.
         this.previousPosition = { ...this.position };
         this.color = color;
-        this.update(width, height, temperature, flowX, flowY, null);
+        this.update(width, height, this.temperature, flowX, flowY, context);
     }
 
-    update = (width: number, height: number, temperature: number, flowX: number, flowY: number, context: CanvasRenderingContext2D | null) => {
+    update = (width: number, height: number, temperature: number, flowX: number, flowY: number, context: CanvasRenderingContext2D) => {
         this.previousPosition = { ...this.position };
 
         this.temperature = temperature;
@@ -37,13 +37,11 @@ class Particle {
         this.position.x = this.position.x + this.velocity.x;
         this.position.y = this.position.y + this.velocity.y;
 
-        if (context !== null) {
-            context.strokeStyle = this.color;
-            context.beginPath();
-            context.moveTo(this.previousPosition.x, this.previousPosition.y);
-            context.lineTo(this.position.x, this.position.y);
-            context.stroke();
-        }
+        context.strokeStyle = this.color;
+        context.beginPath();
+        context.moveTo(this.previousPosition.x, this.previousPosition.y);
+        context.lineTo(this.position.x, this.position.y);
+        context.stroke();
         let corrected = false;
         while (this.position.x < 0) {
             this.position.x += width;
@@ -61,12 +59,10 @@ class Particle {
             this.position.y -= height;
             corrected = true;
         }
-        if (context !== null && corrected) {
-            context.beginPath();
-            context.moveTo(this.position.x - this.velocity.x, this.position.y - this.velocity.y);
-            context.lineTo(this.position.x, this.position.y);
-            context.stroke();
-        }
+        context.beginPath();
+        context.moveTo(this.position.x - this.velocity.x, this.position.y - this.velocity.y);
+        context.lineTo(this.position.x, this.position.y);
+        context.stroke();
     }
 }
 

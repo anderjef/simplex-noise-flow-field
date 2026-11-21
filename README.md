@@ -1,6 +1,6 @@
 # Simplex Noise Flow Field
 
-Simplex Noise Flow Field generates random, varying flow-field animations based on simplex noise.  
+Simplex Noise Flow Field generates random, varying flow-field animations based on simplex noise with particles initially placed via Poisson-disk distribution.  
 Start date: 2026-11-03  
 
 ## Demo

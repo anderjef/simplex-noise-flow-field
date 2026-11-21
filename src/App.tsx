@@ -20,6 +20,9 @@ function App() {
   const mouseCoords = useRef({ x: 0, y: 0, });
   const dimensions = useRef({ width: 0, height: 0, });
 
+  const randomColor = useMemo(() => (() => `rgb(${Math.floor(seededRandom() * 255)}, ${Math.floor(seededRandom() * 255)}, ${Math.floor(seededRandom() * 255)})`), []);
+
+  // Simplex-noise values.
   // One simplex noise per axis to circumvent limitations mapping the bounded line of noise values onto a circle of angles.
   const simplexNoiseX = useMemo(() => createNoise3D(mulberry32(Math.round(seededRandom() * (2 ** 32 - 1)))), []);
   const simplexNoiseY = useMemo(() => createNoise3D(mulberry32(Math.round(seededRandom() * (2 ** 32 - 1)))), []);
@@ -49,14 +52,92 @@ function App() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
-      // React's <StrictMode> runs effects multiple times in development, so ensure the particles list is cleared.
-      particlesRef.current = [];
-      for (let i = 0; i < NUM_PARTICLES; i++) {
-        //TODO: Alternatively color particles based on a new simplex-noise field.
-        particlesRef.current.push(new Particle(canvas.width, canvas.height, 0, 0, 0, `rgb(${Math.floor(seededRandom() * 255)}, ${Math.floor(seededRandom() * 255)}, ${Math.floor(seededRandom() * 255)})`));
-      }
       const context = canvas.getContext("2d");
       if (context) {
+
+        // React's <StrictMode> runs effects multiple times in development, so ensure the particles list is cleared.
+        particlesRef.current = [];
+
+        // Poisson-disk distribution values.
+        // The radius is chosen as the maximal value for which all of the particles can fit in the canvas, working backward from a target grid length of NUM_PARTICLES.
+        const sideLength = Math.sqrt((canvas.width * canvas.height) / NUM_PARTICLES);
+        // The integer ceiling is taken to ensure there are enough grid cells to fit all of the particles and the grid entirely covers the canvas.
+        // Some of the grid cells may thus spill outside the canvas, but particles are prevented from spawning outside the canvas and the probability that a particle will spawn in the remainder of that cell is proportional to the area of the cell within the canvas.
+        const columns = Math.ceil(canvas.width / sideLength);
+        // The integer ceiling is taken to ensure there are enough grid cells to fit all of the particles and the grid entirely covers the canvas.
+        // Some of the grid cells may thus spill outside the canvas, but particles are prevented from spawning outside the canvas and the probability that a particle will spawn in the remainder of that cell is proportional to the area of the cell within the canvas.
+        const rows = Math.ceil(canvas.height / sideLength);
+        // Two dimensions.
+        const radius = sideLength * Math.sqrt(2);
+        const grid = new Array<Particle | null>(columns * rows).fill(null);
+        const numSampleAttempts = 30;
+        const actives: Particle[] = [];
+
+        // Poisson-disk distribution.
+        // TODO: Alternatively color particles based on a new simplex-noise field or their Poisson-disk--distribution generation order.
+        actives.push(new Particle({ x: seededRandom() * canvas.width, y: seededRandom() * canvas.height, }, randomColor(), canvas.width, canvas.height, 0, 0, context));
+        grid[Math.floor(actives[0].position.x / sideLength) + Math.floor(actives[0].position.y / sideLength) * columns] = actives[0];
+        particlesRef.current.push(actives[0]);
+        while (actives.length && particlesRef.current.length < NUM_PARTICLES) {
+          const activesIndex = Math.floor(seededRandom() * actives.length);
+          const active = actives[activesIndex];
+          let found = false;
+          for (let i = 0; i < numSampleAttempts; i++) {
+            const angle = seededRandom() * Math.PI * 2;
+            const distance = seededRandom() * radius + radius;
+            const x = active.position.x + Math.cos(angle) * distance;
+            if (x < 0 || x >= canvas.width) {
+              continue;
+            }
+            const y = active.position.y + Math.sin(angle) * distance;
+            if (y < 0 || y >= canvas.height) {
+              continue;
+            }
+            const position = { x: x, y: y, };
+            const currentGridColumn = Math.floor(position.x / sideLength);
+            if (currentGridColumn < 0 || currentGridColumn >= columns) {
+              break;
+            }
+            const currentGridRow = Math.floor(position.y / sideLength);
+            if (currentGridRow < 0 || currentGridRow >= rows) {
+              break;
+            }
+            const currentGridIndex = currentGridColumn + currentGridRow * columns;
+            let tooClose = false;
+            for (let j = -1; j <= 1 && !tooClose; j++) {
+              for (let k = -1; k <= 1 && !tooClose; k++) {
+                const neighborGridColumn = currentGridColumn + j;
+                if (neighborGridColumn < 0 || neighborGridColumn >= columns) {
+                  continue;
+                }
+                const neighborGridRow = currentGridRow + k;
+                if (neighborGridRow < 0 || neighborGridRow >= rows) {
+                  continue;
+                }
+                const neighbor = grid[neighborGridColumn + neighborGridRow * columns];
+                if (neighbor !== null) {
+                  tooClose = Math.sqrt(Math.abs(position.x ** 2 - neighbor.position.x ** 2) + Math.abs(position.y ** 2 - neighbor.position.y ** 2)) < radius;
+                }
+              }
+            }
+            if (!tooClose) {
+              if (!grid[currentGridIndex]) {
+                const newParticle = new Particle(position, randomColor(), canvas.width, canvas.height, 0, 0, context);
+                actives.push(newParticle);
+                grid[currentGridIndex] = newParticle;
+                particlesRef.current.push(newParticle);
+                found = true;
+                if (particlesRef.current.length === NUM_PARTICLES) {
+                  break;
+                }
+              }
+            }
+          }
+          if (!found) {
+            actives.splice(activesIndex, 1);
+          }
+        }
+
         lastFrameCountRef.current = frameCountRef.current;
         lastTimeRef.current = performance.now();
 
