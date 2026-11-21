@@ -220,7 +220,7 @@ function App() {
         cancelAnimationFrame(requestRef.current)
       }
     };
-  }, [simplexNoiseX, simplexNoiseY, simplexNoiseTemperature, deltaT]);
+  }, [randomColor, simplexNoiseX, simplexNoiseY, simplexNoiseTemperature, deltaT]);
 
   useLayoutEffect(() => {
     if (!canvasRef.current) {
