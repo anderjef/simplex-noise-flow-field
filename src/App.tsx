@@ -9,6 +9,8 @@ function App() {
   const NUM_PARTICLES = 16000;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameCountRef = useRef(0);
+  const lastFrameCountRef = useRef(0);
+  const lastTimeRef = useRef<number>(null);
   const [frameCount, setFrameCount] = useState(0);
   const [fps, setFps] = useState(0);
   const minAlphaRef = useRef(Number.MAX_SAFE_INTEGER);
@@ -55,18 +57,18 @@ function App() {
       }
       const context = canvas.getContext("2d");
       if (context) {
-        let lastFrameCount = frameCountRef.current;
-        let lastTime = performance.now();
+        lastFrameCountRef.current = frameCountRef.current;
+        lastTimeRef.current = performance.now();
 
         const render = async () => {
           frameCountRef.current += 1;
           const frameStart = performance.now();
-          const updateUi = frameStart - lastTime >= 1000;
+          const updateUi = frameStart - lastTimeRef.current! >= 1000;
           if (updateUi) {
             setFrameCount(frameCountRef.current);
-            setFps((frameCountRef.current - lastFrameCount) * 1000 / (frameStart - lastTime));
-            lastFrameCount = frameCountRef.current;
-            lastTime = frameStart;
+            setFps((frameCountRef.current - lastFrameCountRef.current) * 1000 / (frameStart - lastTimeRef.current!));
+            lastFrameCountRef.current = frameCountRef.current;
+            lastTimeRef.current = frameStart;
           }
 
           // Debug-like coloring of canvas to indicate flow direction, where red indicates flow at 30 degrees, blue indicates flow at 150 degrees, and green indicates flow at 270 degrees.
