@@ -9,7 +9,9 @@ function App() {
   const NUM_PARTICLES = 16000;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameCountRef = useRef(0);
+  const [frameCount, setFrameCount] = useState(0);
   const [fps, setFps] = useState(0);
+  const minAlphaRef = useRef(Number.MAX_SAFE_INTEGER);
   const [minAlpha, setMinAlpha] = useState(Number.MAX_SAFE_INTEGER);
   const particlesRef = useRef<Particle[]>([]);
   const requestRef = useRef<number>(null);
@@ -26,7 +28,6 @@ function App() {
   const deltaT = delta / 2;
   // Fade rate determined by experimentation.
   const fadeRate = 2.5;
-  const frameRatePeriod = 10;
 
   const handleMouseLeave = () => {
     mouseCoords.current = {
@@ -59,11 +60,13 @@ function App() {
 
         const render = async () => {
           frameCountRef.current += 1;
-          if (frameCountRef.current % frameRatePeriod === 0) {
-            const now = performance.now();
-            setFps((frameCountRef.current - lastFrameCount) * 1000 / (now - lastTime));
+          const frameStart = performance.now();
+          const updateUi = frameStart - lastTime >= 1000;
+          if (updateUi) {
+            setFrameCount(frameCountRef.current);
+            setFps((frameCountRef.current - lastFrameCount) * 1000 / (frameStart - lastTime));
             lastFrameCount = frameCountRef.current;
-            lastTime = now;
+            lastTime = frameStart;
           }
 
           // Debug-like coloring of canvas to indicate flow direction, where red indicates flow at 30 degrees, blue indicates flow at 150 degrees, and green indicates flow at 270 degrees.
@@ -117,7 +120,10 @@ function App() {
           }
           context.putImageData(imgData, 0, 0);
           if (frameCountRef.current > Math.ceil(255 / fadeRate)) {
-            setMinAlpha((previousMinAlpha) => Math.min(previousMinAlpha, alphaSum));
+            minAlphaRef.current = Math.min(minAlphaRef.current, alphaSum);
+            if (updateUi) {
+              setMinAlpha(() => Math.floor(minAlphaRef.current / (canvasRef.current!.width * canvasRef.current!.height)));
+            }
           }
 
           requestRef.current = requestAnimationFrame(render);
@@ -158,9 +164,9 @@ function App() {
         onMouseLeave={handleMouseLeave}
       />
       <p style={{ fontSize: "2rem" }}>{Math.floor(fps)} fps</p>
-      <p style={{ fontSize: "1rem" }}>Frame: {frameCountRef.current}</p>
+      <p style={{ fontSize: "1rem" }}>Frame: {frameCount}</p>
       <p style={{ fontSize: "1rem" }}>Particles: {NUM_PARTICLES}</p>
-      <p style={{ fontSize: "1rem" }}>Min alpha: {minAlpha == Number.MAX_SAFE_INTEGER ? "-" : Math.floor(minAlpha / ((canvasRef.current?.width ?? 0) * (canvasRef.current?.height ?? 0)))} / pixel</p>
+      <p style={{ fontSize: "1rem" }}>Min alpha: {minAlpha === Number.MAX_SAFE_INTEGER ? "-" : minAlpha} / pixel</p>
       <p style={{ fontSize: "1rem" }}>Seed: {SEED}</p>
     </>
   )
