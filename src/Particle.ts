@@ -1,3 +1,5 @@
+import { seededRandom } from "./mulberry32";
+
 class Particle {
     private temperature = 0;
     private maxVelocity = 0;
@@ -8,7 +10,7 @@ class Particle {
     private color: string;
 
     constructor(width: number, height: number, temperature: number, flowX: number, flowY: number, color: string) {
-        this.position = { x: Math.random() * width, y: Math.random() * height };
+        this.position = { x: seededRandom() * width, y: seededRandom() * height };
         this.velocity = { x: 0, y: 0 };
         // Setting the previous position here is redundant (also set in update function) to avoid lint errors.
         this.previousPosition = { ...this.position };
@@ -23,7 +25,7 @@ class Particle {
         // Base and range of max velocity was determined by experimentation.
         this.maxVelocity = 1 + this.temperature;
         // Base, range, and max-velocity relation of flow strength determined by experimentation.
-        this.flowStrength = Math.random() * 0.08 * this.maxVelocity / 3 + 0.08 * this.maxVelocity * 2 / 3;
+        this.flowStrength = seededRandom() * 0.08 * this.maxVelocity / 3 + 0.08 * this.maxVelocity * 2 / 3;
 
         this.velocity.x = this.velocity.x + (flowX) * this.flowStrength;
         this.velocity.y = this.velocity.y + (flowY) * this.flowStrength;

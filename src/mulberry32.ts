@@ -1,3 +1,5 @@
+export const SEED = Math.round(Math.random() * (2 ** 32 - 1));
+
 export default function mulberry32(seed: number) {
     return function () {
         let t = (seed += 0x6d2b79f5);
@@ -6,3 +8,5 @@ export default function mulberry32(seed: number) {
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
 }
+
+export const seededRandom = mulberry32(SEED);
