@@ -4,9 +4,9 @@ class Particle {
     private temperature = 0;
     private maxVelocity = 0;
     private flowStrength = 0;
-    public position: { x: number; y: number; };
-    private velocity: { x: number; y: number; };
-    private previousPosition: { x: number; y: number; };
+    public position: { x: number, y: number, };
+    private velocity: { x: number, y: number, };
+    private previousPosition: { x: number, y: number, };
     private color: string;
 
     constructor(position: { x: number, y: number, }, color: string, width: number, height: number, flowX: number, flowY: number, context: CanvasRenderingContext2D) {
@@ -27,8 +27,8 @@ class Particle {
         // Base, range, and max-velocity relation of flow strength determined by experimentation.
         this.flowStrength = seededRandom() * 0.08 * this.maxVelocity / 3 + 0.08 * this.maxVelocity * 2 / 3;
 
-        this.velocity.x = this.velocity.x + (flowX) * this.flowStrength;
-        this.velocity.y = this.velocity.y + (flowY) * this.flowStrength;
+        this.velocity.x = this.velocity.x + flowX * this.flowStrength;
+        this.velocity.y = this.velocity.y + flowY * this.flowStrength;
         const velocityMagnitude = Math.sqrt(this.velocity.y ** 2 + this.velocity.x ** 2);
         if (velocityMagnitude > this.maxVelocity) {
             this.velocity.x *= this.maxVelocity / velocityMagnitude;
