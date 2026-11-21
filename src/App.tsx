@@ -46,6 +46,8 @@ function App() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
+      // React's <StrictMode> runs effects multiple times in development, so ensure the particles list is cleared.
+      particlesRef.current = [];
       for (let i = 0; i < NUM_PARTICLES; i++) {
         //TODO: Alternatively color particles based on a new simplex-noise field.
         particlesRef.current.push(new Particle(canvas.width, canvas.height, 0, 0, 0, `rgb(${Math.floor(seededRandom() * 255)}, ${Math.floor(seededRandom() * 255)}, ${Math.floor(seededRandom() * 255)})`));
