@@ -13,8 +13,8 @@ function App() {
   const [minAlpha, setMinAlpha] = useState(Number.MAX_SAFE_INTEGER);
   const particlesRef = useRef<Particle[]>([]);
   const requestRef = useRef<number>(null);
-  const mouseCoords = useRef({ x: 0, y: 0 });
-  const dimensions = useRef({ width: 0, height: 0 });
+  const mouseCoords = useRef({ x: 0, y: 0, });
+  const dimensions = useRef({ width: 0, height: 0, });
 
   // One simplex noise per axis to circumvent limitations mapping the bounded line of noise values onto a circle of angles.
   const simplexNoiseX = useMemo(() => createNoise3D(mulberry32(Math.round(seededRandom() * (2 ** 32 - 1)))), []);
@@ -31,7 +31,7 @@ function App() {
   const handleMouseLeave = () => {
     mouseCoords.current = {
       x: dimensions.current.width / 2,
-      y: dimensions.current.height / 2
+      y: dimensions.current.height / 2,
     };
   };
 
@@ -39,7 +39,7 @@ function App() {
     const rect = event.currentTarget.getBoundingClientRect();
     mouseCoords.current = {
       x: event.clientX - rect.left,
-      y: event.clientY - rect.top
+      y: event.clientY - rect.top,
     };
   };
 

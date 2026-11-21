@@ -10,8 +10,8 @@ class Particle {
     private color: string;
 
     constructor(width: number, height: number, temperature: number, flowX: number, flowY: number, color: string) {
-        this.position = { x: seededRandom() * width, y: seededRandom() * height };
-        this.velocity = { x: 0, y: 0 };
+        this.position = { x: seededRandom() * width, y: seededRandom() * height, };
+        this.velocity = { x: 0, y: 0, };
         // Setting the previous position here is redundant (also set in update function) to avoid lint errors.
         this.previousPosition = { ...this.position };
         this.color = color;
