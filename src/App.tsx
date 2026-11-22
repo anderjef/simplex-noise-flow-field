@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
+// External simplex-noise dependency instead of internal/custom implementation due to ultimately wanting to convert to spherical geometry.
 import { createNoise3D } from 'simplex-noise';
 import Particle from './Particle.ts';
 import mulberry32, { SEED, seededRandom } from './mulberry32.ts';
@@ -24,6 +25,7 @@ function App() {
 
   // Simplex-noise values.
   // One simplex noise per axis to circumvent limitations mapping the bounded line of noise values onto a circle of angles.
+  // TODO: Resolve "flow shock" and "temperature shock" when particles cross canvas boundaries by converting to spherical geometry.
   const simplexNoiseX = useMemo(() => createNoise3D(mulberry32(Math.round(seededRandom() * (2 ** 32 - 1)))), []);
   const simplexNoiseY = useMemo(() => createNoise3D(mulberry32(Math.round(seededRandom() * (2 ** 32 - 1)))), []);
   const simplexNoiseTemperature = useMemo(() => createNoise3D(mulberry32(Math.round(seededRandom() * (2 ** 32 - 1)))), []);
