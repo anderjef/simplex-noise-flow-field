@@ -11,7 +11,8 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameCountRef = useRef(0);
   const lastFrameCountRef = useRef(0);
-  const lastTimeRef = useRef<number>(null);
+  const lastFrameEndRef = useRef<number>(null);
+  const lastStatsUpdateRef = useRef<number>(null);
   const [frameCount, setFrameCount] = useState(0);
   const [fps, setFps] = useState(0);
   const minAlphaRef = useRef(Number.MAX_SAFE_INTEGER);
@@ -141,17 +142,20 @@ function App() {
         }
 
         lastFrameCountRef.current = frameCountRef.current;
-        lastTimeRef.current = performance.now();
+        const renderStart = performance.now();
+        lastStatsUpdateRef.current = renderStart;
+        lastFrameEndRef.current = renderStart;
 
         const render = async () => {
-          frameCountRef.current += 1;
           const frameStart = performance.now();
-          const updateUi = frameStart - lastTimeRef.current! >= 1000;
-          if (updateUi) {
+          frameCountRef.current += 1;
+          // Update stats at most once per second.
+          const updateStats = frameStart - lastStatsUpdateRef.current! >= 1000;
+          if (updateStats) {
             setFrameCount(frameCountRef.current);
-            setFps((frameCountRef.current - lastFrameCountRef.current) * 1000 / (frameStart - lastTimeRef.current!));
+            setFps((frameCountRef.current - lastFrameCountRef.current) / ((lastFrameEndRef.current! - lastStatsUpdateRef.current!) / 1000));
             lastFrameCountRef.current = frameCountRef.current;
-            lastTimeRef.current = frameStart;
+            lastStatsUpdateRef.current = frameStart;
           }
 
           // Debug-like coloring of canvas to indicate flow direction, where red indicates flow at 30 degrees, blue indicates flow at 150 degrees, and green indicates flow at 270 degrees.
@@ -206,11 +210,12 @@ function App() {
           context.putImageData(imgData, 0, 0);
           if (frameCountRef.current > Math.ceil(255 / fadeRate)) {
             minAlphaRef.current = Math.min(minAlphaRef.current, alphaSum);
-            if (updateUi) {
+            if (updateStats) {
               setMinAlpha(() => Math.floor(minAlphaRef.current / (canvasRef.current!.width * canvasRef.current!.height)));
             }
           }
 
+          lastFrameEndRef.current = performance.now();
           requestRef.current = requestAnimationFrame(render);
         };
 
